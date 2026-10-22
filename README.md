@@ -17,7 +17,7 @@ Live page: https://sandeepmk2006.github.io/EXP-11-WTL-URK24CS1059/
 npm install
 node app.js
 node cse_students.js
-node server.js   # open http://localhost:3000
+node server.js   # open http://localhost:3000 (set PORT to change)
 ```
 
 MongoDB must be running at `mongodb://127.0.0.1:27017`.

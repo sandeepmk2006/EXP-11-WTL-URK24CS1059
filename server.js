@@ -39,6 +39,7 @@ client.connect()
     .then(() => {
         students = client.db('CollegeDB').collection('Students');
         console.log('Connected to MongoDB successfully');
-        app.listen(3000, () => console.log('Server running at http://localhost:3000'));
+        const port = process.env.PORT || 3000;
+        app.listen(port, () => console.log('Server running at http://localhost:' + port));
     })
     .catch(err => console.error('Database error:', err.message));
