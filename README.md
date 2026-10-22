@@ -8,8 +8,8 @@ Live page: https://sandeepmk2006.github.io/EXP-11-WTL-URK24CS1059/
 |------|---------|
 | `app.js` | Connects to MongoDB and performs insertOne, find, updateOne, deleteOne on `CollegeDB.Students` |
 | `cse_students.js` | Sample Question 5 – inserts three students and lists the CSE students |
-| `server.js` | Express REST API (CRUD) that also serves the portal page |
-| `index.html` | CollegeDB Student Portal (uses the live API when served by `server.js`, an in-browser collection on GitHub Pages) |
+| `server.js` | Express REST API (CRUD) on `ScienceFairDB.projects` that also serves the site |
+| `index.html` | Young Innovators Science Fair 2026 site (uses the live API when served by `server.js`, an in-browser collection on GitHub Pages) |
 
 ## Run
 

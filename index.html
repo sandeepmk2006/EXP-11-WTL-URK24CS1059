@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CollegeDB Portal</title>
+<title>Science Fair 2026</title>
 <style>
   :root { --bg:#f1f5f9; --card:#fff; --txt:#0f172a; --mut:#64748b; --acc:#16a34a; --acc2:#0ea5e9; --code:#0f172a; --line:#e2e8f0; }
   * { box-sizing:border-box; }
@@ -22,12 +22,11 @@
   .stat { background:var(--card); border-radius:12px; padding:16px; text-align:center; box-shadow:0 1px 3px #0001; }
   .stat b { display:block; font-size:2rem; color:var(--acc); }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; }
-  .stu { background:var(--card); border-radius:12px; padding:16px; box-shadow:0 1px 3px #0001; border-top:4px solid var(--acc2); }
-  .stu h3 { margin:0 0 6px; font-size:1.05rem; }
-  .stu small { color:var(--mut); display:block; margin-top:6px; font-family:Consolas,monospace; word-break:break-all; }
+  .proj { background:var(--card); border-radius:12px; padding:16px; box-shadow:0 1px 3px #0001; border-top:4px solid var(--acc2); }
+  .proj h3 { margin:0 0 6px; font-size:1.05rem; }
+  .proj small { color:var(--mut); display:block; margin-top:6px; font-family:Consolas,monospace; word-break:break-all; }
   .tag { display:inline-block; font-size:.75rem; padding:2px 8px; border-radius:20px; background:#e0f2fe; color:#0369a1; }
-  .yr { float:right; font-weight:700; color:var(--acc); }
-  .act { margin-top:10px; display:flex; gap:6px; }
+  .score { float:right; font-weight:700; color:var(--acc); font-size:1.3rem; }
   form, .row { display:flex; flex-wrap:wrap; gap:10px; align-items:end; }
   label { display:flex; flex-direction:column; font-size:.8rem; color:var(--mut); gap:4px; }
   input, select { padding:8px; border:1px solid var(--line); border-radius:6px; font-size:.95rem; min-width:120px; }
@@ -46,15 +45,15 @@
 </head>
 <body>
 <header>
-  <h1>🎓 CollegeDB Student Portal</h1>
-  <p>Node.js + MongoDB integration — insert, retrieve, update and delete student records</p>
+  <h1>🔬 Young Innovators Science Fair 2026</h1>
+  <p>Node.js + MongoDB project registry — register, browse, judge and remove science projects</p>
 </header>
 <nav id="nav">
   <button data-p="home" class="on">Home</button>
-  <button data-p="records">Records</button>
-  <button data-p="add">Insert</button>
-  <button data-p="manage">Update / Delete</button>
-  <button data-p="query">CSE Query</button>
+  <button data-p="projects">Projects</button>
+  <button data-p="register">Register</button>
+  <button data-p="judge">Judge / Remove</button>
+  <button data-p="query">Physics Query</button>
   <button data-p="run">Run app.js</button>
   <button data-p="code">Code</button>
 </nav>
@@ -63,63 +62,63 @@
   <!-- HOME -->
   <section class="page on" id="home">
     <div class="stats">
-      <div class="stat"><b id="sTotal">0</b>Students</div>
-      <div class="stat"><b id="sCse">0</b>CSE</div>
-      <div class="stat"><b id="sDept">0</b>Departments</div>
+      <div class="stat"><b id="sTotal">0</b>Projects</div>
+      <div class="stat"><b id="sPhy">0</b>Physics</div>
+      <div class="stat"><b id="sTop">0</b>Highest Score</div>
       <div class="stat"><b id="sMode">—</b>Backend</div>
     </div>
     <div class="card" style="margin-top:16px">
       <h2>Welcome!</h2>
-      <p>This portal works on the <b>Students</b> collection of the <b>CollegeDB</b> database through the MongoDB Node.js driver. Run <code>node server.js</code> to use a live MongoDB server. On GitHub Pages the same driver calls run against an in-browser collection.</p>
+      <p>Students from grades 9–12 present projects in Physics, Chemistry, Biology and Environment. Every action on this site runs a MongoDB Node.js driver call on the <b>projects</b> collection of <b>ScienceFairDB</b>. Run <code>node server.js</code> to use a live MongoDB server. On GitHub Pages the same calls run against an in-browser collection.</p>
       <div class="row">
         <button class="btn gray" onclick="resetData()">Reset sample data</button>
       </div>
     </div>
   </section>
 
-  <!-- RECORDS -->
-  <section class="page" id="records">
+  <!-- PROJECTS -->
+  <section class="page" id="projects">
     <div class="card">
-      <h2>Student Records</h2>
+      <h2>Find Projects — find()</h2>
       <div class="row">
-        <label>Name<input id="fName" placeholder="e.g. Priya"></label>
-        <label>Department<select id="fDept"><option value="">All</option><option>CSE</option><option>IT</option><option>ECE</option><option>EEE</option></select></label>
-        <button class="btn" onclick="renderRecords(true)">Find</button>
+        <label>Student<input id="fStudent" placeholder="e.g. Priya"></label>
+        <label>Category<select id="fCat"><option value="">All</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Environment</option></select></label>
+        <button class="btn" onclick="renderProjects(true)">Search</button>
       </div>
     </div>
-    <p id="rCount"></p>
-    <div class="grid" id="rGrid"></div>
+    <p id="pCount"></p>
+    <div class="grid" id="pGrid"></div>
   </section>
 
-  <!-- INSERT -->
-  <section class="page" id="add">
+  <!-- REGISTER -->
+  <section class="page" id="register">
     <div class="card">
-      <h2>Insert a Student — insertOne()</h2>
-      <form id="addForm">
-        <label>Name<input name="name" required></label>
-        <label>Department<select name="department"><option>CSE</option><option>IT</option><option>ECE</option><option>EEE</option></select></label>
-        <label>Year<input name="year" type="number" min="1" max="4" value="1" required></label>
-        <button class="btn">Insert</button>
+      <h2>Register a Project — insertOne()</h2>
+      <form id="regForm">
+        <label>Title<input name="title" required></label>
+        <label>Student<input name="student" required></label>
+        <label>Category<select name="category"><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Environment</option></select></label>
+        <label>Grade<input name="grade" type="number" min="9" max="12" value="10" required></label>
+        <label>Score<input name="score" type="number" min="0" max="100" value="0"></label>
+        <button class="btn">Register</button>
       </form>
-      <p id="addMsg"></p>
+      <p id="regMsg"></p>
     </div>
   </section>
 
-  <!-- MANAGE -->
-  <section class="page" id="manage">
+  <!-- JUDGE -->
+  <section class="page" id="judge">
     <div class="card">
-      <h2>Update / Delete — updateOne() &amp; deleteOne()</h2>
-      <div class="wrap"><table id="mTable"></table></div>
+      <h2>Judge / Remove — updateOne() &amp; deleteOne()</h2>
+      <div class="wrap"><table id="jTable"></table></div>
     </div>
   </section>
 
   <!-- QUERY -->
   <section class="page" id="query">
     <div class="card">
-      <h2>Insert three students and list CSE — insertMany() + find()</h2>
-      <div class="row">
-        <button class="btn blue" onclick="runQ5()">Run cse_students.js</button>
-      </div>
+      <h2>Register three projects and list Physics — insertMany() + find()</h2>
+      <div class="row"><button class="btn blue" onclick="runQuery()">Run query</button></div>
     </div>
     <div class="card wrap"><table id="qTable"></table></div>
   </section>
@@ -136,59 +135,38 @@
   <!-- CODE -->
   <section class="page" id="code">
     <div class="card">
-      <h2>app.js</h2>
-<pre>const { MongoClient } = require('mongodb');
-const url = 'mongodb://127.0.0.1:27017';
-const client = new MongoClient(url);
+      <h2>Driver calls used by this site</h2>
+<pre>const { MongoClient, ObjectId } = require('mongodb');
+const client = new MongoClient('mongodb://127.0.0.1:27017');
+await client.connect();
+const projects = client.db('ScienceFairDB').collection('projects');
 
-async function main() {
-  try {
-    await client.connect();
-    console.log('Connected to MongoDB successfully');
-    const db = client.db('CollegeDB');
-    const students = db.collection('Students');
-
-    const insertResult = await students.insertOne({ name: 'Arun', department: 'CSE', year: 2 });
-    console.log('Inserted ID:', insertResult.insertedId);
-
-    const allStudents = await students.find({}).toArray();
-    console.log('Student Records:', allStudents);
-
-    const updateResult = await students.updateOne({ name: 'Arun' }, { $set: { year: 3 } });
-    console.log('Updated documents:', updateResult.modifiedCount);
-
-    const deleteResult = await students.deleteOne({ name: 'Arun' });
-    console.log('Deleted documents:', deleteResult.deletedCount);
-  } catch (error) {
-    console.error('Database error:', error.message);
-  } finally {
-    await client.close();
-    console.log('MongoDB connection closed');
-  }
-}
-main();</pre>
+await projects.insertOne({ title, student, category, grade, score });     // Register
+await projects.find({ category: 'Physics' }).toArray();                   // Projects
+await projects.updateOne({ _id: new ObjectId(id) }, { $set: { score } }); // Judge
+await projects.deleteOne({ _id: new ObjectId(id) });                      // Remove</pre>
       <table>
         <tr><th>Operation</th><th>MongoDB method</th><th>Purpose</th></tr>
-        <tr><td>Create</td><td>insertOne()</td><td>Inserts a new document</td></tr>
-        <tr><td>Read</td><td>find()</td><td>Retrieves matching documents</td></tr>
-        <tr><td>Update</td><td>updateOne()</td><td>Modifies a matching document</td></tr>
-        <tr><td>Delete</td><td>deleteOne()</td><td>Removes a matching document</td></tr>
+        <tr><td>Create</td><td>insertOne()</td><td>Registers a new project</td></tr>
+        <tr><td>Read</td><td>find()</td><td>Retrieves matching projects</td></tr>
+        <tr><td>Update</td><td>updateOne()</td><td>Changes a project's score</td></tr>
+        <tr><td>Delete</td><td>deleteOne()</td><td>Removes a project</td></tr>
       </table>
     </div>
   </section>
 </main>
 
 <div id="shell"></div>
-<footer>CollegeDB portal powered by the MongoDB Node.js driver · URK24CS1059</footer>
+<footer>Science Fair site powered by the MongoDB Node.js driver · URK24CS1059</footer>
 
 <script>
-const KEY = 'collegedb.students';
+const KEY = 'sciencefair.projects';
 const SAMPLE = [
-  { name:'Arun', department:'CSE', year:2 },
-  { name:'Priya', department:'IT', year:3 },
-  { name:'Kumar', department:'CSE', year:1 },
-  { name:'Divya', department:'ECE', year:4 },
-  { name:'Ravi', department:'CSE', year:3 }
+  { title:'Solar Water Purifier', student:'Arun', category:'Environment', grade:11, score:88 },
+  { title:'Magnetic Levitation Train', student:'Priya', category:'Physics', grade:12, score:92 },
+  { title:'Plant Growth under LED Light', student:'Kumar', category:'Biology', grade:10, score:78 },
+  { title:'pH Indicator from Red Cabbage', student:'Divya', category:'Chemistry', grade:9, score:85 },
+  { title:'Wind Turbine Efficiency', student:'Ravi', category:'Physics', grade:11, score:81 }
 ];
 const oid = () => [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2,'0')).join('');
 let live = false;
@@ -198,7 +176,7 @@ function log(s) {
   const d = document.createElement('div'); d.textContent = s; sh.appendChild(d); sh.scrollTop = sh.scrollHeight;
 }
 
-// In-browser stand-in for db.collection('Students')
+// In-browser stand-in for db.collection('projects')
 const local = {
   load() { try { const v = JSON.parse(localStorage.getItem(KEY)); if (v) return v; } catch (e) {} return this.seed(); },
   save(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} mem = a; },
@@ -208,21 +186,21 @@ let mem = null;
 
 const api = {
   async find(filter = {}) {
-    if (live) return (await fetch('/api/students' + (filter.department ? '?department=' + filter.department : ''))).json();
+    if (live) return (await fetch('/api/projects' + (filter.category ? '?category=' + filter.category : ''))).json();
     return (mem || local.load()).filter(s => Object.entries(filter).every(([k, v]) => s[k] === v));
   },
   async insertOne(doc) {
-    if (live) return (await fetch('/api/students', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(doc) })).json();
+    if (live) return (await fetch('/api/projects', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(doc) })).json();
     const a = mem || local.load(); const d = { _id: oid(), ...doc }; a.push(d); local.save(a); return { insertedId: d._id };
   },
-  async updateOne(id, year) {
-    if (live) return (await fetch('/api/students/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ year }) })).json();
+  async updateOne(id, score) {
+    if (live) return (await fetch('/api/projects/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ score }) })).json();
     const a = mem || local.load(); const s = a.find(x => x._id === id);
-    if (!s || s.year === year) return { modifiedCount: 0 };
-    s.year = year; local.save(a); return { modifiedCount: 1 };
+    if (!s || s.score === score) return { modifiedCount: 0 };
+    s.score = score; local.save(a); return { modifiedCount: 1 };
   },
   async deleteOne(id) {
-    if (live) return (await fetch('/api/students/' + id, { method:'DELETE' })).json();
+    if (live) return (await fetch('/api/projects/' + id, { method:'DELETE' })).json();
     const a = mem || local.load(); const i = a.findIndex(x => x._id === id);
     if (i < 0) return { deletedCount: 0 };
     a.splice(i, 1); local.save(a); return { deletedCount: 1 };
@@ -232,79 +210,83 @@ const api = {
 async function stats() {
   const all = await api.find();
   sTotal.textContent = all.length;
-  sCse.textContent = all.filter(s => s.department === 'CSE').length;
-  sDept.textContent = new Set(all.map(s => s.department)).size;
+  sPhy.textContent = all.filter(s => s.category === 'Physics').length;
+  sTop.textContent = all.length ? Math.max(...all.map(s => s.score)) : 0;
   sMode.textContent = live ? 'Live' : 'Browser';
 }
 
-async function renderRecords(show) {
-  const filter = {}; if (fDept.value) filter.department = fDept.value;
+async function renderProjects(show) {
+  const filter = {}; if (fCat.value) filter.category = fCat.value;
   let all = await api.find(filter);
-  if (fName.value) all = all.filter(s => s.name.toLowerCase().includes(fName.value.toLowerCase()));
-  if (show) log(`students.find(${JSON.stringify(fName.value ? { ...filter, name: fName.value } : filter)}).toArray()  // ${all.length} docs`);
-  rCount.textContent = all.length + ' record(s) found';
-  rGrid.innerHTML = all.map(s => `<div class="stu"><span class="yr">Year ${s.year}</span><h3>${esc(s.name)}</h3><span class="tag">${esc(s.department)}</span><small>_id: ${s._id}</small></div>`).join('');
+  if (fStudent.value) all = all.filter(s => s.student.toLowerCase().includes(fStudent.value.toLowerCase()));
+  if (show) log(`projects.find(${JSON.stringify(fStudent.value ? { ...filter, student: fStudent.value } : filter)}).toArray()  // ${all.length} docs`);
+  pCount.textContent = all.length + ' project(s) found';
+  pGrid.innerHTML = all.map(s => `<div class="proj"><span class="score">${s.score}</span><h3>${esc(s.title)}</h3><span class="tag">${esc(s.category)}</span> ${esc(s.student)} · Grade ${s.grade}<small>_id: ${s._id}</small></div>`).join('');
 }
 
-async function renderManage() {
+async function renderJudge() {
   const all = await api.find();
-  mTable.innerHTML = '<tr><th>Name</th><th>Department</th><th>Year</th><th>Actions</th></tr>' + all.map(s =>
-    `<tr><td>${esc(s.name)}</td><td>${esc(s.department)}</td><td><input type="number" min="1" max="4" value="${s.year}" id="y${s._id}" style="min-width:60px;width:70px"></td>
-     <td><button class="btn sm blue" onclick="upd('${s._id}')">Update</button> <button class="btn sm red" onclick="del('${s._id}')">Delete</button></td></tr>`).join('');
+  jTable.innerHTML = '<tr><th>Title</th><th>Student</th><th>Category</th><th>Score</th><th>Actions</th></tr>' + all.map(s =>
+    `<tr><td>${esc(s.title)}</td><td>${esc(s.student)}</td><td>${esc(s.category)}</td><td><input type="number" min="0" max="100" value="${s.score}" id="s${s._id}" style="min-width:60px;width:80px"></td>
+     <td><button class="btn sm blue" onclick="upd('${s._id}')">Update</button> <button class="btn sm red" onclick="del('${s._id}')">Remove</button></td></tr>`).join('');
 }
 
 async function upd(id) {
-  const year = Number(document.getElementById('y' + id).value);
-  const r = await api.updateOne(id, year);
-  log(`students.updateOne({ _id: ObjectId('${id}') }, { $set: { year: ${year} } })  // modifiedCount: ${r.modifiedCount}`);
+  const score = Number(document.getElementById('s' + id).value);
+  const r = await api.updateOne(id, score);
+  log(`projects.updateOne({ _id: ObjectId('${id}') }, { $set: { score: ${score} } })  // modifiedCount: ${r.modifiedCount}`);
   refresh();
 }
 async function del(id) {
   const r = await api.deleteOne(id);
-  log(`students.deleteOne({ _id: ObjectId('${id}') })  // deletedCount: ${r.deletedCount}`);
+  log(`projects.deleteOne({ _id: ObjectId('${id}') })  // deletedCount: ${r.deletedCount}`);
   refresh();
 }
 
-addForm.onsubmit = async e => {
+regForm.onsubmit = async e => {
   e.preventDefault();
-  const f = new FormData(addForm);
-  const doc = { name: f.get('name'), department: f.get('department'), year: Number(f.get('year')) };
+  const f = new FormData(regForm);
+  const doc = { title: f.get('title'), student: f.get('student'), category: f.get('category'), grade: Number(f.get('grade')), score: Number(f.get('score')) };
   const r = await api.insertOne(doc);
-  log(`students.insertOne(${JSON.stringify(doc)})  // insertedId: ${r.insertedId}`);
-  addMsg.textContent = 'Inserted ID: ' + r.insertedId;
-  addForm.reset(); refresh();
+  log(`projects.insertOne(${JSON.stringify(doc)})  // insertedId: ${r.insertedId}`);
+  regMsg.textContent = 'Inserted ID: ' + r.insertedId;
+  regForm.reset(); refresh();
 };
 
-async function runQ5() {
-  const docs = [{ name:'Priya', department:'CSE', year:3 }, { name:'Kumar', department:'IT', year:2 }, { name:'Divya', department:'CSE', year:1 }];
+async function runQuery() {
+  const docs = [
+    { title:'Smart Irrigation Sensor', student:'Meena', category:'Environment', grade:10, score:84 },
+    { title:'Pendulum Wave Machine', student:'Karthik', category:'Physics', grade:11, score:90 },
+    { title:'Homemade Electromagnet', student:'Sneha', category:'Physics', grade:9, score:79 }
+  ];
   for (const d of docs) await api.insertOne(d);
-  log(`students.insertMany(${JSON.stringify(docs)})  // insertedCount: 3`);
-  const cse = await api.find({ department:'CSE' });
-  log(`students.find({ department: 'CSE' }).toArray()  // ${cse.length} docs`);
-  qTable.innerHTML = '<tr><th>_id</th><th>Name</th><th>Department</th><th>Year</th></tr>' +
-    cse.map(s => `<tr><td style="font-family:Consolas,monospace">${s._id}</td><td>${esc(s.name)}</td><td>${s.department}</td><td>${s.year}</td></tr>`).join('');
+  log(`projects.insertMany(${JSON.stringify(docs)})  // insertedCount: 3`);
+  const phy = await api.find({ category:'Physics' });
+  log(`projects.find({ category: 'Physics' }).toArray()  // ${phy.length} docs`);
+  qTable.innerHTML = '<tr><th>_id</th><th>Title</th><th>Student</th><th>Grade</th><th>Score</th></tr>' +
+    phy.map(s => `<tr><td style="font-family:Consolas,monospace">${s._id}</td><td>${esc(s.title)}</td><td>${esc(s.student)}</td><td>${s.grade}</td><td>${s.score}</td></tr>`).join('');
   stats();
 }
 
 async function runApp() {
   const lines = ['$ node app.js', 'Connected to MongoDB successfully'];
-  const ins = await api.insertOne({ name:'Arun', department:'CSE', year:2 });
+  const doc = { title:'Water Rocket', student:'Arun', category:'Physics', grade:10, score:75 };
+  const ins = await api.insertOne(doc);
   lines.push(`Inserted ID: new ObjectId('${ins.insertedId}')`);
-  const all = await api.find();
-  lines.push('Student Records: ' + JSON.stringify(all, null, 2));
-  const arun = all.find(s => s._id === ins.insertedId);
-  const up = await api.updateOne(arun._id, 3);
+  const found = (await api.find()).filter(s => s._id === ins.insertedId);
+  lines.push('Project Records: ' + JSON.stringify(found, null, 2));
+  const up = await api.updateOne(ins.insertedId, 82);
   lines.push('Updated documents: ' + up.modifiedCount);
-  const de = await api.deleteOne(arun._id);
+  const de = await api.deleteOne(ins.insertedId);
   lines.push('Deleted documents: ' + de.deletedCount, 'MongoDB connection closed');
   out.textContent = lines.join('\n');
   log('node app.js  // CRUD cycle complete');
   refresh();
 }
 
-function resetData() { if (!live) { local.seed(); log('students.deleteMany({}); students.insertMany(sample)  // 5 docs'); refresh(); } }
+function resetData() { if (!live) { local.seed(); log('projects.deleteMany({}); projects.insertMany(sample)  // 5 docs'); refresh(); } }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-function refresh() { stats(); renderRecords(); renderManage(); }
+function refresh() { stats(); renderProjects(); renderJudge(); }
 
 document.querySelectorAll('#nav button').forEach(b => b.onclick = () => {
   document.querySelectorAll('#nav button, .page').forEach(x => x.classList.remove('on'));
@@ -312,9 +294,9 @@ document.querySelectorAll('#nav button').forEach(b => b.onclick = () => {
 });
 
 (async () => {
-  try { const r = await fetch('/api/students'); live = r.ok && (r.headers.get('content-type') || '').includes('json'); } catch (e) {}
+  try { const r = await fetch('/api/projects'); live = r.ok && (r.headers.get('content-type') || '').includes('json'); } catch (e) {}
   log("const client = new MongoClient('mongodb://127.0.0.1:27017')");
-  log("const students = client.db('CollegeDB').collection('Students')");
+  log("const projects = client.db('ScienceFairDB').collection('projects')");
   refresh();
 })();
 </script>
